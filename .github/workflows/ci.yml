@@ -1,0 +1,26 @@
+name: CloudLens CI
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: '8.0.x' }
+      - run: dotnet restore backend/CloudLens.Api.Tests/CloudLens.Api.Tests.csproj
+      - run: dotnet test backend/CloudLens.Api.Tests/CloudLens.Api.Tests.csproj --configuration Release
+      - run: dotnet build backend/CloudLens.Api/CloudLens.Api.csproj --configuration Release --no-restore
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22', cache: 'npm', cache-dependency-path: frontend/cloudlens-dashboard/package-lock.json }
+      - run: npm install
+        working-directory: frontend/cloudlens-dashboard
+      - run: npm run build
+        working-directory: frontend/cloudlens-dashboard
